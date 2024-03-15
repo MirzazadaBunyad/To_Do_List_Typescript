@@ -23,8 +23,8 @@ form?.addEventListener("submit", (e) => {
     createdAt: new Date(),
   };
   tasks.push(newTask);
-
   addListItem(newTask);
+  saveTasks(tasks)
   input.value = "";
 });
 
@@ -32,18 +32,31 @@ function addListItem(task: Task) {
   const item = document.createElement("li");
   const label = document.createElement("label");
   const checkbox = document.createElement("input");
+  const deleteItem = document.createElement("button");
   checkbox.addEventListener("change", () => {
     task.completed = checkbox.checked;
-    saveTasks();
+    saveTasks(tasks);
+  });
+  deleteItem.dataset.taskId = task.id;
+  deleteItem.textContent = "Delete";
+
+  deleteItem.addEventListener("click", () => {
+    const taskId = deleteItem.dataset.taskId;
+    const filteredTasks: Task[] = tasks.filter((task) => task.id !== taskId);
+    saveTasks(filteredTasks);
+    item.remove();
+    tasks.length = 0;
+    tasks.push(...filteredTasks);
   });
   checkbox.type = "checkbox";
   checkbox.checked = task.completed;
   label.append(checkbox, task.title);
   item.append(label);
   list?.append(item);
+  item.append(deleteItem);
 }
 
-function saveTasks() {
+function saveTasks(tasks: Task[]) {
   localStorage.setItem("Tasks", JSON.stringify(tasks));
 }
 
